@@ -10,27 +10,27 @@ contract FreezableCounter is Requestable:
         currentNumber = 0
 
     # It manipulates root chain's state(state transition in root chain)
-    def applyRequestInRootChain(isExit, exchangingNumber):
+    def applyRequestInRootChain(isEnter, exchangingNumber):
         # state transition of root chain for exit
-        if isExit:
+        if isEnter:
             require(currentNumber == exchangingNumber)
             _freeze()
         # state transition of root chain for enter
         else:
-            require(exchangingNumber >=  number)
+            require(exchangingNumber >=  currentNumber)
             _unfreeze()
             currentNumber = exchangingNumber
 
     # It manipulates child chain's state(state transition in child chain)
     def applyRequestInChildChain(isExit, exchangingNumber):
         # state transition of child chain for exit
-        if isExit:
-            require(exchangingNumber >=  number)
+        if isEnter:
+            # require(exchangingNumber >=  currentNumber)
             _unfreeze()
-            number = exchangingNumber
+            currentNumber = exchangingNumber
         # state transition of child chain for enter
         else:
-            require(number == exchangingNumber)
+            require(currentNumber == exchangingNumber)
             _freeze()
 
     # main counting function for user

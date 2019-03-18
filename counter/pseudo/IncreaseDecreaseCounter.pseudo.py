@@ -1,6 +1,6 @@
 # for checking global counting state(number),
 # you should check whether ancestor(or ascendent) counter contract is initialized or not.
-contract InitializableCounter is Requestable:
+contract IncreaseDecreaseCounter is Requestable:
 
     uint currentNumber # counter's number state
 
@@ -12,12 +12,11 @@ contract InitializableCounter is Requestable:
     def applyRequestInRootChain(isExit, exchangingNumber):
         # state transition of root chain for exit
         if !isExit:
-            require(currentNumber == exchangingNumber)
-            _initialize()
+            require(currentNumber >= exchangingNumber)
+            currentNumber -= exchangingNumber
         # state transition of root chain for enter
         else:
             currentNnumber += exchangingNumber
-            _initialize()
 
     # It manipulates child chain's state(state transition in child chain)
     # null-account executes this function
@@ -27,15 +26,12 @@ contract InitializableCounter is Requestable:
             currentNnumber += exchangingNumber
         # state transition of child chain for enter
         else:
-            require(currentNumber == exchangingNumber)
-            _initialize()
+            require(currentNumber >= exchangingNumber)
+            currentNumber -= exchangingNumber
 
     # main counting function for user
     def count():
         currentNumber += 1
-
-    def _initialize():
-        currentNumber = 0
 
     def isInitialized():
         if currentNumber == 0:
