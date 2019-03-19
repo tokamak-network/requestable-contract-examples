@@ -1,6 +1,6 @@
 # for checking global counting state(number),
 # you should check whether ancestor(or ascendent) counter contract is initialized or not.
-contract IncreaseDecreaseCounter is Requestable:
+contract CulmulativeCounter is Requestable:
 
     uint currentNumber # counter's number state
 
