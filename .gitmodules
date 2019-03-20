@@ -1,0 +1,6 @@
+[submodule "token/requestable-erc20-wrapper-token"]
+	path = token/requestable-erc20-wrapper-token
+	url = https://github.com/Onther-Tech/requestable-erc20-wrapper-token.git
+[submodule "token/requestable-simple-token"]
+	path = token/requestable-simple-token
+	url = https://github.com/Onther-Tech/requestable-simple-token.git
