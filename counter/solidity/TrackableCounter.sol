@@ -15,7 +15,7 @@ contract TrackableCounter is BaseCounter, RequestableI {
   bytes32 constant public TRIE_KEY_N = 0x00;
 
   // previous count before enter request in root chain and exit request in child chain.
-  int public requestedN;
+  uint public requestableN;
 
   // address of RootChain contract.
   address public rootchain;
@@ -24,6 +24,13 @@ contract TrackableCounter is BaseCounter, RequestableI {
 
   constructor(address _rootchain) {
     rootchain = _rootchain;
+  }
+
+  /// @dev override BaseCounter.count function.
+  function count() external {
+    requestableN++;
+    n++;
+    emit Counted(n);
   }
 
   function applyRequestInRootChain(
@@ -41,10 +48,8 @@ contract TrackableCounter is BaseCounter, RequestableI {
     uint _n = trieValue.toUint()
     if (isExit) {
       n = n.add(_n);
-      requestedN += int(_n);
     } else {
-      requestedN -= int(_n);
-      require(requestedN >= 0 || uint(-requestedN) <= n);
+      requestableN = requestableN.sub(_n);
     }
 
     appliedRequests[requestId] = true;
@@ -64,11 +69,9 @@ contract TrackableCounter is BaseCounter, RequestableI {
     require(trieKey == TRIE_KEY_N);
 
     if (isExit) {
-      requestedN -= int(_n);
-      require(requestedN >= 0 || uint(-requestedN) <= n);
+      requestableN = requestableN.sub(_n);
     } else {
       n = n.add(_n);
-      requestedN += int(_n);
     }
 
     appliedRequests[requestId] = true;
