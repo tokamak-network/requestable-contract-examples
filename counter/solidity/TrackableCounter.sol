@@ -45,7 +45,6 @@ contract TrackableCounter is BaseCounter, RequestableI {
     } else {
       requestedN -= int(_n);
       require(requestedN >= 0 || uint(-requestedN) <= n);
-      n = n.sub(_n);
     }
 
     appliedRequests[requestId] = true;
@@ -67,7 +66,6 @@ contract TrackableCounter is BaseCounter, RequestableI {
     if (isExit) {
       requestedN -= int(_n);
       require(requestedN >= 0 || uint(-requestedN) <= n);
-      n = n.sub(_n);
     } else {
       n = n.add(_n);
       requestedN += int(_n);
