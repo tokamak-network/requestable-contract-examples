@@ -7,7 +7,7 @@ import {SafeMath} from "openzeppelin-solidity/contracts/math/SafeMath.sol";
 
 
 /// @notice A request can decrease `n`. Is it right to decrease the count?
-contract FreezableCounter is BaseCounter, RequestableI {
+contract SimpleCounter is BaseCounter, RequestableI {
   // SimpleDecode library to decode trieValue.
   using SimpleDecode for bytes;
   using SafeMath for *;
@@ -20,21 +20,8 @@ contract FreezableCounter is BaseCounter, RequestableI {
 
   mapping (uint => bool) appliedRequests;
 
-  // freeze counter before make request.
-  bool public freezed;
-
   constructor(address _rootchain) {
     rootchain = _rootchain;
-
-    // Counter in child chain is freezed at first.
-    if (_rootchain == address(0)) {
-      freezed = true;
-    }
-  }
-
-  function freeze() external returns (bool success) {
-    freezed = true;
-    return true;
   }
 
   function applyRequestInRootChain(
@@ -46,16 +33,14 @@ contract FreezableCounter is BaseCounter, RequestableI {
   ) external returns (bool success) {
     require(!appliedRequests[requestId]);
     require(msg.sender == rootchain);
-    require(freezed);
 
     // only accept request for `n`.
     require(trieKey == TRIE_KEY_N);
 
     if (isExit) {
-      freezed = false;
-      n = trieValue.toUint();
+      n = n.add(trieValue.toUint());
     } else {
-      require(n == trieValue.toUint());
+      n = n.sub(trieValue.toUint());
     }
 
     appliedRequests[requestId] = true;
@@ -70,16 +55,14 @@ contract FreezableCounter is BaseCounter, RequestableI {
   ) external returns (bool success) {
     require(!appliedRequests[requestId]);
     require(msg.sender == address(0));
-    require(freezed);
 
     // only accept request for `n`.
     require(trieKey == TRIE_KEY_N);
 
     if (isExit) {
-      require(n == trieValue.toUint());
+      n = n.sub(trieValue.toUint());
     } else {
-      n = trieValue.toUint();
-      freezed = false;
+      n = n.add(trieValue.toUint());
     }
 
     appliedRequests[requestId] = true;
