@@ -21,19 +21,19 @@ contract FreezableCounter is BaseCounter, RequestableI {
   mapping (uint => bool) appliedRequests;
 
   // freeze counter before make request.
-  bool public freezed;
+  bool public frozen;
 
   constructor(address _rootchain) {
     rootchain = _rootchain;
 
-    // Counter in child chain is freezed at first.
+    // Counter in child chain is frozen at first.
     if (_rootchain == address(0)) {
-      freezed = true;
+      frozen = true;
     }
   }
 
   function freeze() external returns (bool success) {
-    freezed = true;
+    frozen = true;
     return true;
   }
 
@@ -46,13 +46,13 @@ contract FreezableCounter is BaseCounter, RequestableI {
   ) external returns (bool success) {
     require(!appliedRequests[requestId]);
     require(msg.sender == rootchain);
-    require(freezed);
+    require(frozen);
 
     // only accept request for `n`.
     require(trieKey == TRIE_KEY_N);
 
     if (isExit) {
-      freezed = false;
+      frozen = false;
       n = trieValue.toUint();
     } else {
       require(n == trieValue.toUint());
@@ -70,7 +70,7 @@ contract FreezableCounter is BaseCounter, RequestableI {
   ) external returns (bool success) {
     require(!appliedRequests[requestId]);
     require(msg.sender == address(0));
-    require(freezed);
+    require(frozen);
 
     // only accept request for `n`.
     require(trieKey == TRIE_KEY_N);
@@ -79,7 +79,7 @@ contract FreezableCounter is BaseCounter, RequestableI {
       require(n == trieValue.toUint());
     } else {
       n = trieValue.toUint();
-      freezed = false;
+      frozen = false;
     }
 
     appliedRequests[requestId] = true;
